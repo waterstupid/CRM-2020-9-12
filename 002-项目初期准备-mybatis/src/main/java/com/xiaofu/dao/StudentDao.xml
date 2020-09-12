@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xiaofu.dao.StudentDao">
+    <!--这里单个的参数可写可不写-->
+
+    <select id="selectAll" resultType="com.xiaofu.bean.Student">
+        select * from student
+    </select>
+    <!--
+        关于ParameterType参数，该参数一般可以省略不写，但是如果要写的话要注意以下几个点：
+        1.在Mybatis种8中基本数据类型和String类型都可以算是基本数据类型，可以不使用类的全限定
+        名称
+    -->
+    <!--
+            ParameterType:参数类型为String,可以不使用全限定名称
+    -->
+    <select id="select1" parameterType="String" resultType="com.xiaofu.bean.Student">
+        select * from student where name=#{name}
+    </select>
+    <!--
+            同样可以使用全限定名称
+    -->
+    <select id="select2"  parameterType="java.lang.String" resultType="com.xiaofu.bean.Student">
+        select * from student where name=#{name}
+    </select>
+    <!--
+          同样可以省略，如果省略mybatis可以自动判断参数的数据类型
+  -->
+    <select id="select3"   resultType="com.xiaofu.bean.Student">
+        select * from student where name=#{name}
+    </select>
+<!--
+         参数类型为int类型的数据
+-->
+    <select id="select4" parameterType="int"   resultType="com.xiaofu.bean.Student">
+        select * from student where id=#{id}
+    </select>
+    <!--
+        同样参数可以是Student,引用数据类型,如果参数是引用数据类型，那么这个时候需要注意：
+        #{}相当于占位符，而占位符中的值需要是对象中的属性名，如果不是，就会报错
+    -->
+    <insert id="insert5" parameterType="com.xiaofu.bean.Student" >
+        insert into student(id,name,age) values(#{id},#{name},#{age})
+    </insert>
+    <!--
+            同样参数可以是Map类型的数据，如果参数类型是Map类型的，那么这个时候也要注意：
+            使用#{}的时候，占位符中的值需要时map中的key值
+            最后注意:parameterType可以省略不写，一般都是省略不写的状态
+    -->
+    <update id="update6" parameterType="java.util.Map">
+        update student set name=#{name},age=#{age} where id=1
+    </update>
+    <!--
+            关于：resultType:
+            resultType在<select>标签中必须要写，在<insert><delete><update>
+            标签中不用写
+            parameterType在<select><update><delete><insert>标签中可写可不写
+            resultType:
+            如果是8种基本数据类型和String类型，那么可以省略全限定名称，写别名即可
+            但是如果是引用数据类型，必须要写全限定名称
+    -->
+    <!--
+            返回数据类型为int类型
+    -->
+    <select id="select7" resultType="int">
+        select count(*) from student
+    </select>
+    <!--
+            返回数据类型为student类型
+            原理:Mybatis会将查出来的数据自动封装在对象中，不用我们自己封装，myBatis会帮我们做这个十七
+    -->
+    <select id="select8" parameterType="int" resultType="com.xiaofu.bean.Student">
+        select * from student where id=#{id}
+
+    </select>
+
+    <!--
+            返回参数类型为map类型
+            首先mybatis会将一行数据封装成一个map对象，然后将所有的map对象放在list集合中，返回给我们
+    -->
+    <select id="select9" resultType="java.util.Map">
+        select * from student
+    </select>
+
+    <!--
+            如果表中的字段名和domain对象中的属性名不一致，那么可以采用两种方法来解决
+            1.起别名
+            2.使用resultMap来解决
+    -->
+    <!--
+            采用起别名的方式来解决
+    -->
+    <select id="select10" resultType="com.xiaofu.bean.Student" >
+        select id,fullname as name,age from student
+    </select>
+    <!--
+        采用resultMap的方式来解决
+    -->
+    <resultMap id="studentMap" type="com.xiaofu.bean.Student">
+        <!--
+            主键字段使用id
+        -->
+        <id column="id" property="id"></id>
+        <result column="fullname" property="name"></result>
+        <result column="age" property="age"></result>
+    </resultMap>
+    <select id="select11" resultMap="studentMap">
+        select * from student;
+    </select>
+    <!--
+            注意:在resultType为map的时候，如果查询的内容只有一行，那么返回值可以用
+            map接收，如果查询的值有多行，返回值不能用map来接收，只能用List集合来接收
+    -->
+    <!--<select id="select12" resultType="java.util.Map">
+        select * from student
+    </select>-->
+
+    <!--
+            #{}和${}的区别
+            1.#{}表示的是占位符，使用的是PreparedStatement，可以避免sql注入
+            2.${}表示的拼接符，使用的是Statement,不能避免sql注入
+            在现实的项目开发中，用的比较多的是#{},但是在某些特殊情况，我们需要用${}
+            比如：动态拼接表名或者字段名
+            3.#{}只能代表值，不能代表其他
+
+
+    -->
+    <!--
+        模糊查询
+        注意：%  %需要加空格
+    -->
+    <select id="select12" resultType="com.xiaofu.bean.Student">
+        select id,name,age from student where name like '%' #{name} '%'
+    </select>
+    <!--
+            mybatis还支持动态sql语句,常用的动态sql语句标签有两种
+            <when>
+                <if test=''>
+                <if test=''>
+                ....
+            </when>
+            该标签的特性就是,如果<if>标签中的test属性为真,则自动向主sql语句中
+            拼接sql语句,如果为假，那么就不会向主sql语句中拼接,另外<when>标签还有
+            一个特性,它会自动去除sql语句前面的and或者or等关键字
+
+    -->
+    <select id="select13" resultType="com.xiaofu.bean.Student">
+        select * from student
+        <where>
+            <if test="name != null and name != ''">
+                name like '%' #{name} '%'
+            </if>
+            <if test="address != null and address != '' ">
+                and address like '%' #{address} '%'
+            </if>
+        </where>
+    </select>
+    <!--
+            <foreach>标签
+            collection:表示需要遍历的数据类型是数组还是集合
+            item:表示接下来要用到的属性名字
+            open:代表刚开始的字符
+            close:代表刚结束的字符
+            separator:代表分隔符
+    -->
+    <select id="select14" resultType="com.xiaofu.bean.Student">
+        select * from student
+        <where>
+            id in
+            <foreach collection="array" item="id" close=")"  open="(" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+    <!--
+            如果需要查询出来的数据与当前domain中的对象属性不一致，这个时候
+            有两种解决办法，一种是使用Map作为返回数据类型，另一种是使用VO下的对象
+            VO(视图对象):VO就是视图对象
+            接下来是一个多表查询的例子,首先使用map作为返回数据类型
+
+    -->
+    <select id="select15" resultType="map">
+        select
+        s.name sname,c.name cname
+        from student s
+        join classroom c
+        on s.classroomId=c.id
+
+    </select>
+    <!--
+            然后使用VO的方式
+    -->
+    <select id="select16" resultType="com.xiaofu.vo.StudentAndClassRoom">
+        select
+        s.id sid,s.name sname,s.age sage,s.address saddress,s.classroomId sclassroomId
+        ,c.id cid,c.name name
+        from student s
+        join classroom c
+        on s.classroomId=c.id
+    </select>
+    <!--
+        注意:在某些复杂的时候，我们可以用sql片段来代替sql语句
+
+    -->
+    <sql id="sqlid">
+        select * from student
+    </sql>
+    <select id="select17" resultType="com.xiaofu.bean.Student">
+        <include refid="sqlid"></include> where id=1
+    </select>
+
+
+
+
+
+</mapper>

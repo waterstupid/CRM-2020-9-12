@@ -27,4 +27,6 @@ public interface StudentDao {
     List<Map<String, Object>> select15();
 
     List<StudentAndClassRoom> select16();
+
+    Student select17();
 }
