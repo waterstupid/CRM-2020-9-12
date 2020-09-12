@@ -5,6 +5,7 @@ public class Student {
     private String name;
     private Integer id;
     private String address;
+    private String city;
 
     public String getAddress() {
         return address;
