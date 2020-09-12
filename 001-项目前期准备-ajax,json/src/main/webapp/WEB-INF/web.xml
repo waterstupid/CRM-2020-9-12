@@ -1,0 +1,40 @@
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+
+  <servlet>
+    <servlet-name>SecondServlet</servlet-name>
+    <servlet-class>com.servlet.SecondServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>FirstServlet</servlet-name>
+    <servlet-class>com.servlet.FirstServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ThirdServlet</servlet-name>
+    <servlet-class>com.servlet.ThirdServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>FourServlet</servlet-name>
+    <servlet-class>com.servlet.FourServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>SecondServlet</servlet-name>
+    <url-pattern>/firstajax.do</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>FirstServlet</servlet-name>
+    <url-pattern>/json.do</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ThirdServlet</servlet-name>
+    <url-pattern>/json1.do</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>FourServlet</servlet-name>
+    <url-pattern>/fourajax.do</url-pattern>
+  </servlet-mapping>
+</web-app>
