@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,21 +26,24 @@ public class UserServlet extends HttpServlet {
         }
     }
     // 首先明白控制器是要接收参数然后将任务交给service层处理
-    private void login(HttpServletRequest request, HttpServletResponse response) {
+    private void login(HttpServletRequest request, HttpServletResponse response) throws UnsupportedEncodingException {
         // 获取姓名
         String username = request.getParameter("username");
+        System.out.println(username);
         // 获取密码
         String password = request.getParameter("password");
         // 获取id地址
         String ip = request.getRemoteAddr();
         // 然后调用service中的方法
         // 用动态代理的方式来获取代理对象，然后加上事务的功能即可
-        UserServiceImpl userService = (UserServiceImpl) ServiceFactory.getService(new UserServiceImpl());
+        UserService userService=new UserServiceImpl();
+        userService= (UserService) ServiceFactory.getService(userService);
         try{
             User user = userService.login(username, password, ip);
             // 如果user不为null,则说明查询到了数据
             // 则需要向前端传送json数据:{"success":true}
             PrintJson.printJsonFlag(response,true);
+            // 向session域中添加数据
             request.getSession().setAttribute("user",user);
         }catch(Exception e){
             e.printStackTrace();

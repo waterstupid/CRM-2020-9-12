@@ -6,7 +6,9 @@ import com.xiaofu.crm.settings.exception.UserErrorException;
 import com.xiaofu.crm.settings.service.UserService;
 import org.apache.ibatis.session.SqlSession;
 import util.DateTimeUtil;
+import util.MD5Util;
 import util.SqlSessionUtil;
+import util.UUIDUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +19,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User login(String username, String password, String ip) throws UserErrorException {
         Map<String,String> map=new HashMap<>();
+        password=MD5Util.getMD5(password);
         map.put("username",username);
         map.put("password",password);
         User user = userDao.login(map);

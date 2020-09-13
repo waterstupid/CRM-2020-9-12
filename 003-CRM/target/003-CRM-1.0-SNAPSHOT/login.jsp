@@ -12,19 +12,17 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 		$(function(){
 			// 首先需要将光标定格在输入一栏
 			$("#name").focus()
+			// 每次设置name框中内容为""
+			$("#name").val("")
 			// 然后需要判断用户名和密码都不能为空
 			// trim函数的作用:清除空格
 			$("#bto").click(function(){
-				var username=$("#name").val()
-				var password=$("#pwd").val()
-				// 如果用户名和密码都为空,那么就输出错误信息
-				if($.trim(username)==""|| $.trim(password)=="" ){
-					$("#msg").html("用户名和密码不能为空")
-					// 程序执行到这，就需要停止该方法了
-					return false
-				}
+				// 判断用户名和密码是否为为空
+				isNull()
+
 				// 如果程序执行到这,则需要向服务器发送一个ajax请求
 				$.post("user/login.do",{"username":username,"password":password},function(data){
+					alert(data)
 					login(data)
 
 
@@ -38,6 +36,8 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 				var password=$("#pwd").val()
 				// enter的键值为13
 				if(event.keyCode==13){
+					// 判断用户和密码是否为空
+					isNull()
 					// 也可以进行登录
 					$.post("user/login.do",{"username":username,"password":password},function(data){
 						login(data)
@@ -49,6 +49,7 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 			})
 
 		})
+		// 该方法用来通过从后端传来的标志位来判断是否登录成功
 		function login(data){
 
 			// 从服务器中得来得是json数据
@@ -56,13 +57,25 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 			// 数据类型:{"success":false/true}
 			if(data.success){
 				// 如果为真，则为登录成功,跳转到工作页面
-				window.location.href="workbench/index.html"
+				window.location.href="workbench/index.jsp"
 
 			}else{
 				// 如果为假,则为登录失败,需要在<span>标签中输出对应的数据
 				// msg由后端传来的异常信息
-				$("#msg").html(${msg})
+				$("#msg").html(data.msg)
 
+			}
+
+		}
+		// 该方法用来判断用户密码是否为空
+		function isNull(){
+			var username=$("#name").val()
+			var password=$("#pwd").val()
+			// 如果用户名和密码都为空,那么就输出错误信息
+			if($.trim(username)==""|| $.trim(password)=="" ){
+				$("#msg").html("用户名和密码不能为空")
+				// 程序执行到这，就需要停止该方法了
+				return false
 			}
 
 		}
@@ -83,7 +96,7 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 			<div class="page-header">
 				<h1>登录</h1>
 			</div>
-			<form action="workbench/index.html" class="form-horizontal" role="form">
+			<form action="workbench/index.jsp" class="form-horizontal" role="form">
 				<div class="form-group form-group-lg">
 					<div style="width: 350px;">
 						<input class="form-control" type="text" placeholder="用户名" id="name">

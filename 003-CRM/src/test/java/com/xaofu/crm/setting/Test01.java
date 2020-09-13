@@ -1,13 +1,19 @@
 package com.xaofu.crm.setting;
 
 import com.xiaofu.crm.settings.dao.UserDao;
+import com.xiaofu.crm.settings.domain.User;
+import com.xiaofu.crm.settings.exception.UserErrorException;
+import com.xiaofu.crm.settings.service.UserService;
+import com.xiaofu.crm.settings.service.impl.UserServiceImpl;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.junit.Test;
+import util.ServiceFactory;
 import util.SqlSessionUtil;
 
+import javax.xml.ws.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -36,6 +42,14 @@ public class Test01 {
         } catch (IOException e) {
             e.printStackTrace();
         }*/
+
+    }
+    @Test
+    public void test02(){
+        UserService userService=new UserServiceImpl();
+        UserService service = (UserService) ServiceFactory.getService(userService);
+        System.out.println("service"+service.getClass().getName());
+
 
     }
 }

@@ -5,7 +5,7 @@
 <mapper namespace="com.xiaofu.crm.settings.dao.UserDao">
     <!--这里单个的参数可写可不写-->
     <select id="login" resultType="com.xiaofu.crm.settings.domain.User">
-        select * from tbl_user where loginAct=#{name} and loginPwd=#{password}
+        select * from tbl_user where loginAct=#{username} and loginPwd=#{password}
 
     </select>
 
