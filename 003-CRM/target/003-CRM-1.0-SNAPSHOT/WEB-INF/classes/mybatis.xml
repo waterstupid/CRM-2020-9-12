@@ -22,5 +22,6 @@
     </environments>
     <mappers>
         <package name="com.xiaofu.crm.settings.dao"></package>
+        <package name="com.xiaofu.crm.workbench.dao"></package>
     </mappers>
 </configuration>

@@ -17,12 +17,13 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 			// 然后需要判断用户名和密码都不能为空
 			// trim函数的作用:清除空格
 			$("#bto").click(function(){
+				var username=$("#name").val()
+				var password=$("#pwd").val()
 				// 判断用户名和密码是否为为空
 				isNull()
 
 				// 如果程序执行到这,则需要向服务器发送一个ajax请求
 				$.post("user/login.do",{"username":username,"password":password},function(data){
-					alert(data)
 					login(data)
 
 

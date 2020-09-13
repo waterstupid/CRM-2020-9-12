@@ -4,13 +4,23 @@
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
     <!--创建一个过滤器-->
-    <welcome-file-list>
-        <welcome-file>/index.jsp</welcome-file>
-    </welcome-file-list>
+
    <filter>
         <filter-name>EncodingFilter</filter-name>
-        <filter-class>com.xiaofu.crm.settings.filter.EncodingFilter</filter-class>
+        <filter-class>com.xiaofu.crm.web.filter.EncodingFilter</filter-class>
     </filter>
+    <!--
+        创建一个拦截请求的，用来做权限管理
+    -->
+    <filter>
+        <filter-name>InterceptFilter</filter-name>
+        <filter-class>com.xiaofu.crm.web.filter.InterceptFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>InterceptFilter</filter-name>
+        <url-pattern>*.do</url-pattern>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
 
 
     <filter-mapping>
@@ -22,6 +32,15 @@
         <servlet-name>UserServlet</servlet-name>
         <servlet-class>com.xiaofu.crm.settings.web.controller.UserServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ActivityServlet</servlet-name>
+        <servlet-class>com.xiaofu.crm.workbench.web.controller.ActivityServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ActivityServlet</servlet-name>
+        <url-pattern>/activity/getUser.do</url-pattern>
+        <url-pattern>/activity/save.do</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>UserServlet</servlet-name>
         <url-pattern>/user/login.do</url-pattern>

@@ -2,15 +2,14 @@ package com.xiaofu.crm.settings.service.impl;
 
 import com.xiaofu.crm.settings.dao.UserDao;
 import com.xiaofu.crm.settings.domain.User;
-import com.xiaofu.crm.settings.exception.UserErrorException;
+import com.xiaofu.crm.exception.UserErrorException;
 import com.xiaofu.crm.settings.service.UserService;
-import org.apache.ibatis.session.SqlSession;
-import util.DateTimeUtil;
-import util.MD5Util;
-import util.SqlSessionUtil;
-import util.UUIDUtil;
+import com.xiaofu.crm.util.DateTimeUtil;
+import com.xiaofu.crm.util.MD5Util;
+import com.xiaofu.crm.util.SqlSessionUtil;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserServiceImpl implements UserService {
@@ -43,5 +42,10 @@ public class UserServiceImpl implements UserService {
             }
         }
 
+    }
+
+    @Override
+    public List<User> getUserList() {
+        return userDao.selectAll();
     }
 }
