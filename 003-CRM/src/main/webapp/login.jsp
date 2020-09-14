@@ -23,7 +23,7 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 				isNull()
 
 				// 如果程序执行到这,则需要向服务器发送一个ajax请求
-				$.post("user/login.do",{"username":username,"password":password},function(data){
+				$.post("setting/user/login.do",{"username":username,"password":password},function(data){
 					login(data)
 
 
@@ -40,7 +40,7 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 					// 判断用户和密码是否为空
 					isNull()
 					// 也可以进行登录
-					$.post("user/login.do",{"username":username,"password":password},function(data){
+					$.post("setting/user/login.do",{"username":username,"password":password},function(data){
 						login(data)
 
 

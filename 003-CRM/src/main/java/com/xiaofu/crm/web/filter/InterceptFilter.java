@@ -17,7 +17,7 @@ public class InterceptFilter implements Filter {
         String path = request.getServletPath();
         // 这里需要给登录页面和即将前往登录页面的URL地址放行，不做拦截
         // 不然会引起无限重定向的问题
-        if("/user/login.do".equals(path) || "/login.jsp".equals(path)){
+        if("/setting/user/login.do".equals(path) || "/login.jsp".equals(path)){
             chain.doFilter(req, resp);
         }else{
             HttpSession session = request.getSession();

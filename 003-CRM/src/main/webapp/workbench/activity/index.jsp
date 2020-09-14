@@ -11,10 +11,18 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 <script type="text/javascript" src="jquery/bootstrap_3.3.0/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/js/bootstrap-datetimepicker.js"></script>
 <script type="text/javascript" src="jquery/bootstrap-datetimepicker-master/locale/bootstrap-datetimepicker.zh-CN.js"></script>
+<link rel="stylesheet" type="text/css" href="jquery/bs_pagination/jquery.bs_pagination.min.css">
+<script type="text/javascript" src="jquery/bs_pagination/jquery.bs_pagination.min.js"></script>
+<script type="text/javascript" src="jquery/bs_pagination/en.js"></script>
 
-<script type="text/javascript">
+
+	<script type="text/javascript">
+
+
 
 	$(function(){
+		// 需要调用分页插件
+		pageList(1,2)
 		// 这个是做日期按钮的
 		// 然后需要用插件来调试日期控件
 		$(".time").datetimepicker({
@@ -25,73 +33,164 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 			todayBtn: true,
 			pickerPosition: "bottom-left"
 		});
+		// 给点击搜索绑定单击事件
+		$("#select-btn").click(function(){
+			pageList(1,2)
+
+		})
 		// 给创建按钮绑定单击事件
 		$("#createBtn").click(function(){
+			pageList(1,2)
 			// 采用ajax请求查询用户表中的所有内容
 			$.get(
-					"activity/getUser.do",
+					"workbench/activity/getUser.do",
 					function(data){
 						// 从后端传来的数据应该是一个json数组
 						//  该data是一个Json数组
-						var $Obj=$("#create-marketActivity")
+						var $Obj=$("#create-owner")
+						var html=""
 						$.each(data,function(index,object){
 							// 给下拉框添加下拉项
-							//$("#create-marketActivity").append("<option value='"+object.id+"'>"+object.name+"<option>")
-							$Obj.append("<option value='"+object.id+"'>"+object.name+"<option>")
+							// $("#create-marketActivity").append("<option value='"+object.id+"'>"+object.name+"<option>")
+							// $Obj.append("<option value='"+object.id+"'>"+object.name+"<option>")
+							// $Obj.append("<option value='"+object.id+"'>"+1+"<option>")
+							html+="<option value='"+object.id+"'>"+object.name+"</option>"
 						})
+						$Obj.html(html)
 					}
 			)
 			// 然后需要在所有者框中显示当前用户
 			// 使用EL表达式，需要注意一点是:EL表达式在js中使用需要用""括起来
 			var id="${user.id}"
-			$("#create-marketActivity").val(id);
-			// 点击保存事件发送一个ajax请求
-			$("#saveBtn").click(function(){
-				$.post(
-						"activity/save.do",
-						{
-							"name":$("#create-marketActivityName").val(),
-							"startDate":$("#create-startTime").val(),
-							"endDate":$("#create-endTime").val(),
-							"cost":$("#create-cost").val(),
-							"description":$("#create-describe").val(),
-						},
-						function(data){
-							if(data.success){
-								// 添加成功则把模态框close
-								$("#createActivityModal").modal("hide")
-							}else{
-								// 如果失败，就弹出添加失败
-								alert("添加失败，请重新添加")
-							}
-						}
-
-
-
-				)
-
-
-
-
-
-			})
-
-
+			$("#create-activity").val(id);
 
 			// 将模块窗口打开
 			$("#createActivityModal").modal("show")
 
-
-
 		})
-		
-		
-		
+		// 点击保存事件发送一个ajax请求
+		$("#saveBtn").click(function(){
+			$.post(
+					"workbench/activity/save.do",
+					{
+						"name":$("#create-marketActivityName").val(),
+						"startDate":$("#create-startDate").val(),
+						"endDate":$("#create-endDate").val(),
+						"cost":$("#create-cost").val(),
+						"description":$("#create-describe").val(),
+					},
+					function(data){
+						if(data.success){
+							// 添加成功则把模态框close
+							$("#createActivityModal").modal("hide")
+							pageList(1,2)
+						}else{
+							// 如果失败，就弹出添加失败
+							alert("添加失败，请重新添加")
+						}
+					}
+			)
+		})
+		// 需要给多选框绑定事件
+		$("#qx").click(function(){
+			// 首先需要找到所有单选框
+			$("input[name='dx']").prop("checked",this.checked)
+		})
+		// 然后需要给所有单选框绑定事件
+		// 由于单选框是动态生成的,不能直接使用事件
+		// 而是需要找到其有效外部元素,然后调用.on()方法
+		// on()方法有三个参数，第一个是需要绑定的事件,第二个参数就是要绑定事件的标签，第三个就是回调函数
+		$("#tBody").on("click","input[name='dx']",function(){
+			$("#qx").prop("checked",$("input[name='dx']").size()==$("input[name='dx']:checked").size())
+		})
+
+
+
 	});
-	
+	// 首先要动态查询出activity表中的数据
+	// 需要动态查询出activity表中数据有以下几种情况
+	// 1.首先点击市场活动的时候，需要查出第一页
+	// 2.然后点击创建，修改，删除，查询的时候也需要动态查询数据
+	// 3.点击分页按钮的时候需要动态查询数据
+	// 所以要将这个操作写成一个方法,便于重复使用
+	// 该方法用来查询表中的数据
+	function pageList(pageNo,pageSize){
+		// 首先使用ajax来完成这次局部刷新
+		// 因为是查询操作，所以使用get
+		$.get(
+				"workbench/activity/selectActivityList.do",
+				{
+					"pageNo":pageNo,
+					"pageSize":pageSize,
+					"name":$("#select-name").val(),
+					// 注意这个参数我们需要查询的是姓名
+					// 而不是32位的字符
+					"owner":$("#select-owner").val(),
+					"startDate":$("#select-startDate").val(),
+					"endDate":$("#select-endDate").val()
+				},
+				function(data){
+					// 注意:我们从后端传来的数据应该是一个List<Activity>
+					// 但是因为我们要做分页查询,所以也要一个参数就是total,查出来的总条数
+					// json--->{"total":"","dataList":["activity1",....]}
+					var html=""
+					$.each(data.dataList,function(n,a){
+						html+="<tr class=\"active\">"
+						html+="<td><input type=\"checkbox\" name='dx'/></td>"
+						html+="<td><a style=\"text-decoration: none; cursor: pointer;\" onclick=\"window.location.href='detail.jsp';\">"+a.name+"</a></td>"
+						html+="<td>"+a.owner+"</td>"
+						html+="<td>"+a.startDate+"</td>"
+						html+="<td>"+a.endDate+"</td>"
+						html+="</tr>"
+					})
+					$("#tBody").html(html)
+					var pageCount=data.total % pageSize==0 ? data.total / pageSize : parseInt(data.total / pageSize) + 1
+					// 这个是做分页处理的
+						$("#activityPage").bs_pagination({
+						currentPage: pageNo, // 页码
+						rowsPerPage: pageSize, // 每页显示的记录条数
+						maxRowsPerPage: 20, // 每页最多显示的记录条数
+						totalPages:pageCount,
+						totalRows: data.total, // 总记录条数
+						visiblePageLinks: 3, // 显示几个卡片
+						showGoToPage: true,
+						showRowsPerPage: true,
+						showRowsInfo: true,
+						showRowsDefaultInfo: true,
+						// 当点击分页框的页数的时候
+						onChangePage: function (event,data) {
+							// 需要在点击分页框的时候来从隐藏域中取出数据
+							// 在每次pageList方法开始的时候，需要从隐藏域中取出数据
+							$("#select-name").val($("#select-hidden-name").val())
+							$("#select-owner").val($("#select-hidden-owner").val())
+							$("#select-startDate").val($("#select-hidden-startDate").val())
+							$("#select-endDate").val($("#select-hidden-endDate").val())
+							pageList(data.currentPage, data.rowsPerPage);
+						}
+					});
+					// 需要在pageList最后将搜索框中四个input域中保存数据
+					$("#select-hidden-name").val($("#select-name").val())
+					$("#select-hidden-owner").val($("#select-owner").val())
+					$("#select-hidden-startDate").val($("#select-startDate").val())
+					$("#select-hidden-endDate").val($("#select-endDate").val())
+				}
+		)
+
+
+
+
+
+	}
 </script>
 </head>
 <body>
+<%--
+	隐藏域是用来保留页数
+--%>
+<input type="hidden" id="select-hidden-name">
+<input type="hidden" id="select-hidden-owner">
+<input type="hidden" id="select-hidden-startDate">
+<input type="hidden" id="select-hidden-endDate">
 
 	<!-- 创建市场活动的模态窗口 -->
 	<div class="modal fade" id="createActivityModal" role="dialog">
@@ -108,10 +207,9 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 					<form class="form-horizontal" role="form">
 					
 						<div class="form-group">
-							<label for="create-marketActivity" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
+							<label for="create-owner" class="col-sm-2 control-label">所有者<span style="font-size: 15px; color: red;">*</span></label>
 							<div class="col-sm-10" style="width: 300px;">
-								<select class="form-control" id="create-marketActivity">
-
+								<select class="form-control" id="create-owner">
 								</select>
 							</div>
                             <label for="create-marketActivityName" class="col-sm-2 control-label">名称<span style="font-size: 15px; color: red;">*</span></label>
@@ -123,11 +221,11 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 						<div class="form-group">
 							<label for="create-startTime" class="col-sm-2 control-label">开始日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control time" id="create-startTime">
+								<input type="text" class="form-control time" id="create-startDate">
 							</div>
-							<label for="create-endTime" class="col-sm-2 control-label">结束日期</label>
+							<label for="create-endDate" class="col-sm-2 control-label">结束日期</label>
 							<div class="col-sm-10" style="width: 300px;">
-								<input type="text" class="form-control time" id="create-endTime">
+								<input type="text" class="form-control time" id="create-endDate">
 							</div>
 						</div>
                         <div class="form-group">
@@ -226,7 +324,7 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 	<div>
 		<div style="position: relative; left: 10px; top: -10px;">
 			<div class="page-header">
-				<h3>市场活动列表11</h3>
+				<h3>市场活动列表</h3>
 			</div>
 		</div>
 	</div>
@@ -238,15 +336,15 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 				  
 				  <div class="form-group">
 				    <div class="input-group">
-				      <div class="input-group-addon">名称1</div>
-				      <input class="form-control" type="text">
+				      <div class="input-group-addon">名称</div>
+				      <input class="form-control" type="text" id="select-name">
 				    </div>
 				  </div>
 				  
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">所有者</div>
-				      <input class="form-control" type="text">
+				      <input class="form-control" type="text" id="select-owner">
 				    </div>
 				  </div>
 
@@ -254,17 +352,17 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">开始日期</div>
-					  <input class="form-control" type="text" id="startTime" />
+					  <input class="form-control" type="text" id="select-startDate" />
 				    </div>
 				  </div>
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">结束日期</div>
-					  <input class="form-control" type="text" id="endTime">
+					  <input class="form-control" type="text" id="select-endDate">
 				    </div>
 				  </div>
 				  
-				  <button type="submit" class="btn btn-default">查询</button>
+				  <button type="button" class="btn btn-default" id="select-btn">查询</button>
 				  
 				</form>
 			</div>
@@ -283,65 +381,23 @@ ${pageContext.request.serverPort}${pageContext.request.contextPath}/">
 				<table class="table table-hover">
 					<thead>
 						<tr style="color: #B3B3B3;">
-							<td><input type="checkbox" /></td>
+							<td><input type="checkbox" id="qx"/></td>
 							<td>名称</td>
                             <td>所有者</td>
 							<td>开始日期</td>
 							<td>结束日期</td>
 						</tr>
 					</thead>
-					<tbody>
-						<tr class="active">
-							<td><input type="checkbox" /></td>
-							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.jsp';">发传单</a></td>
-                            <td>zhangsan</td>
-							<td>2020-10-10</td>
-							<td>2020-10-20</td>
-						</tr>
-                        <tr class="active">
-                            <td><input type="checkbox" /></td>
-                            <td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='detail.jsp';">发传单</a></td>
-                            <td>zhangsan</td>
-                            <td>2020-10-10</td>
-                            <td>2020-10-20</td>
-                        </tr>
+					<tbody id="tBody">
+
 					</tbody>
 				</table>
 			</div>
-			
-			<div style="height: 50px; position: relative;top: 30px;">
-				<div>
-					<button type="button" class="btn btn-default" style="cursor: default;">共<b>50</b>条记录</button>
-				</div>
-				<div class="btn-group" style="position: relative;top: -34px; left: 110px;">
-					<button type="button" class="btn btn-default" style="cursor: default;">显示</button>
-					<div class="btn-group">
-						<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-							10
-							<span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu" role="menu">
-							<li><a href="#">20</a></li>
-							<li><a href="#">30</a></li>
-						</ul>
-					</div>
-					<button type="button" class="btn btn-default" style="cursor: default;">条/页</button>
-				</div>
-				<div style="position: relative;top: -88px; left: 285px;">
-					<nav>
-						<ul class="pagination">
-							<li class="disabled"><a href="#">首页</a></li>
-							<li class="disabled"><a href="#">上一页</a></li>
-							<li class="active"><a href="#">1</a></li>
-							<li><a href="#">2</a></li>
-							<li><a href="#">3</a></li>
-							<li><a href="#">4</a></li>
-							<li><a href="#">5</a></li>
-							<li><a href="#">下一页</a></li>
-							<li class="disabled"><a href="#">末页</a></li>
-						</ul>
-					</nav>
-				</div>
+			<%--
+				这个div是用来做分页处理的
+			--%>
+			<div style="height: 50px; position: relative;top: 30px;" id="activityPage">
+
 			</div>
 			
 		</div>

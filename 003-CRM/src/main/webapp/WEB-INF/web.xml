@@ -38,11 +38,12 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>ActivityServlet</servlet-name>
-        <url-pattern>/activity/getUser.do</url-pattern>
-        <url-pattern>/activity/save.do</url-pattern>
+        <url-pattern>/workbench/activity/getUser.do</url-pattern>
+        <url-pattern>/workbench/activity/save.do</url-pattern>
+        <url-pattern>/workbench/activity/selectActivityList.do</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>UserServlet</servlet-name>
-        <url-pattern>/user/login.do</url-pattern>
+        <url-pattern>/setting/user/login.do</url-pattern>
     </servlet-mapping>
 </web-app>

@@ -20,7 +20,7 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String path = req.getServletPath();
-        if("/user/login.do".equals(path)){
+        if("/setting/user/login.do".equals(path)){
             System.out.println("进入到登录页面");
             login(req,resp);
         }
